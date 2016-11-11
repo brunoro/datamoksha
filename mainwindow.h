@@ -1,7 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <QtWidgets>
+#include "pixelsorter.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +18,15 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QImage buffer;
+
+    void loadFile(const QString &fileName);
+    void drawBuffer();
+
+private slots:
+    void find();
+    void load();
+    void sort();
 };
 
 #endif // MAINWINDOW_H
