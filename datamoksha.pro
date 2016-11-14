@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    pixelsorter.cpp
+    pixelsort.cpp \
+    operation.cpp
 
 HEADERS  += mainwindow.h \
-    pixelsorter.h
+    pixelsort.h \
+    operation.h
 
 FORMS    += mainwindow.ui
