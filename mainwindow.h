@@ -28,8 +28,7 @@ private slots:
     void find();
     void load();
     void save();
-    void sortH();
-    void sortV();
+    void sort();
 };
 
 #endif // MAINWINDOW_H

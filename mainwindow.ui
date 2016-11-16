@@ -46,7 +46,7 @@
     <item>
      <layout class="QHBoxLayout" name="effectToolbar">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="compareFunctionLabel">
         <property name="text">
          <string>Compare function:</string>
         </property>
@@ -56,19 +56,25 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="pixelsortCompareFunction"/>
+       <widget class="QComboBox" name="compareFunctionCombo"/>
       </item>
       <item>
-       <widget class="QPushButton" name="sortHButton">
+       <widget class="QLabel" name="directionLabel">
         <property name="text">
-         <string>SortH</string>
+         <string>Direction:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="sortVButton">
+       <widget class="QComboBox" name="directionCombo"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sortButton">
         <property name="text">
-         <string>SortV</string>
+         <string>Sort</string>
         </property>
        </widget>
       </item>

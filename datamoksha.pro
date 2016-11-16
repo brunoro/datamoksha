@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = datamoksha
 TEMPLATE = app
 
+QT_CONFIG -= no-pkg-config
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -22,3 +23,8 @@ HEADERS  += mainwindow.h \
     operation.h
 
 FORMS    += mainwindow.ui
+
+unix {
+   CONFIG += link_pkgconfig
+   PKGCONFIG += opencv
+}

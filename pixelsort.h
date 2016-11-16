@@ -3,6 +3,7 @@
 
 #include <QImage>
 #include <QString>
+#include <cv.hpp>
 #include <cstdlib>
 #include "operation.h"
 
@@ -14,6 +15,9 @@ public:
         DirectionHorizontal,
         DirectionVertical
     } Direction;
+
+    static QString directionLabel(Direction direction);
+    static QStringList directionLabels();
 
     typedef enum
     {
@@ -31,17 +35,25 @@ public:
         CompareLast = CompareBlack
     } CompareFunction;
 
-    Pixelsort(Direction direction, CompareFunction compareFunction);
-    void run(QImage &img);
-
     static QString compareFunctionLabel(CompareFunction compareFunction);
     static QStringList compareFunctionLabels();
+
+    Pixelsort(Direction direction, CompareFunction compareFunction, bool useEdges);
+    void run(QImage &img);
+
+    QImage CvMatToQImage(cv::Mat const& src);
+    cv::Mat QImageToCvMat(QImage const& src);
 
 private:
     Direction direction;
     CompareFunction compareFunction;
+    bool useEdges;
 
     int (*getCompareFunctionPointer())(const void *a, const void *b);
+
+    void sortColumn(QImage &img, int x; int start, int length);
+    void sortRow(QImage &img, int y; int start, int length);
+
     void sortHorizontal(QImage &img);
     void sortVertical(QImage &img);
 

@@ -1,9 +1,10 @@
 #include "pixelsort.h"
 
-Pixelsort::Pixelsort(Pixelsort::Direction direction, Pixelsort::CompareFunction compareFunction)
+Pixelsort::Pixelsort(Pixelsort::Direction direction, Pixelsort::CompareFunction compareFunction, bool useEdges)
 {
     this->direction = direction;
     this->compareFunction = compareFunction;
+    this->useEdges = useEdges;
 }
 
 int compare_red(const void *a, const void *b) { return QColor::fromRgb(*(QRgb*)a).red() - QColor::fromRgb(*(QRgb*)b).red(); }
@@ -54,39 +55,72 @@ QString Pixelsort::compareFunctionLabel(Pixelsort::CompareFunction compareFuncti
 QStringList Pixelsort::compareFunctionLabels()
 {
     QStringList list;
-    for (int i = Pixelsort::CompareFirst; i <= Pixelsort::CompareLast; i++)
+    for (int i = CompareFirst; i <= CompareLast; i++)
     {
-        list << Pixelsort::compareFunctionLabel((Pixelsort::CompareFunction)i);
+        list << Pixelsort::compareFunctionLabel((CompareFunction)i);
     }
     return list;
 }
 
+QString Pixelsort::directionLabel(Pixelsort::Direction direction)
+{
+    switch (direction)
+    {
+    case DirectionHorizontal: return "Horizontal";
+    case DirectionVertical: return "Vertical";
+    }
+}
+
+
+QStringList Pixelsort::directionLabels()
+{
+    QStringList list;
+    list << Pixelsort::directionLabel(DirectionHorizontal);
+    list << Pixelsort::directionLabel(DirectionVertical);
+    return list;
+}
+
+void Pixelsort::sortRow(QImage &img, int y; int start, int length)
+{
+    qsort(img.scanLine(y) + start * numBytes, length, numBytes, this->getCompareFunctionPointer());
+}
+
+void Pixelsort::sortColumn(QImage &img, int x; int start, int length)
+{
+    QRgb *column = (QRgb*)malloc(sizeof(QRgb) * length);
+    for (int i = 0; i < length; i++) { column[i] = img.pixel(x, start + i); }
+
+    qsort(column, length, numBytes, this->getCompareFunctionPointer());
+
+    for (int i = 0; i < length; i++) { img.setPixel(x, start + i, column[i]); }
+
+    free(column);
+}
+
+
 void Pixelsort::sortHorizontal(QImage &img)
 {
-    for (int i = 0; i < img.height(); i++)
+    int numLines = img.height();
+    int start = 0;
+    int length = img.width();
+    int numBytes = img.depth() / 8;
+
+    for (int i = 0; i < numLines; i++)
     {
-        qsort(img.scanLine(i), img.width(), img.depth() / 8, this->getCompareFunctionPointer());
+        this->sortRow(img, i, start, length);
     }
 }
 
 void Pixelsort::sortVertical(QImage &img)
 {
-    for (int i = 0; i < img.width(); i++)
+    int numLines = img.width();
+    int start = 0;
+    int length = img.height();
+    int numBytes = img.depth() / 8;
+
+    for (int i = 0; i < numLines; i++)
     {
-        QRgb *column = (QRgb *)malloc(sizeof(QRgb) * img.height());
-        for (int j = 0; j < img.height(); j++)
-        {
-            column[j] = img.pixel(i, j);
-        }
-
-        qsort(column, img.height(), img.depth() / 8, this->getCompareFunctionPointer());
-
-        for (int j = 0; j < img.height(); j++)
-        {
-            img.setPixel(i, j, column[j]);
-        }
-
-        free(column);
+        this->sortColumn(img, i, start, length);
     }
 }
 
@@ -96,7 +130,27 @@ void Pixelsort::run(QImage &img)
     {
     case DirectionHorizontal:
         this->sortHorizontal(img);
+        break;
     case DirectionVertical:
         this->sortVertical(img);
+        break;
     }
+}
+
+QImage Pixelsort::CvMatToQImage(cv::Mat const& src)
+{
+     cv::Mat temp;
+     cvtColor(src, temp,CV_BGR2RGB);
+     QImage dest((const uchar *) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
+     dest.bits(); // enforce deep copy
+     // of QImage::QImage ( const uchar * data, int width, int height, Format format )
+     return dest;
+}
+
+cv::Mat Pixelsort::QImageToCvMat(QImage const& src)
+{
+     cv::Mat tmp(src.height(), src.width(), CV_8UC3, (uchar*)src.bits(), src.bytesPerLine());
+     cv::Mat result; // deep copy just in case
+     cvtColor(tmp, result,CV_BGR2RGB);
+     return result;
 }

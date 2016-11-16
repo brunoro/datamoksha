@@ -7,16 +7,19 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // setup data
-    ui->pixelsortCompareFunction->addItems(Pixelsort::compareFunctionLabels());
-    ui->pixelsortCompareFunction->setCurrentIndex(Pixelsort::CompareFirst);
+    // compare function combo
+    ui->compareFunctionCombo->addItems(Pixelsort::compareFunctionLabels());
+    ui->compareFunctionCombo->setCurrentIndex(Pixelsort::CompareFirst);
+
+    // direction combo
+    ui->directionCombo->addItems(Pixelsort::directionLabels());
+    ui->directionCombo->setCurrentIndex(Pixelsort::DirectionHorizontal);
 
     // connections
     connect(ui->findButton, &QPushButton::clicked, this, &MainWindow::find);
     connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::load);
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::save);
-    connect(ui->sortHButton, &QPushButton::clicked, this, &MainWindow::sortH);
-    connect(ui->sortVButton, &QPushButton::clicked, this, &MainWindow::sortV);
+    connect(ui->sortButton, &QPushButton::clicked, this, &MainWindow::sort);
 }
 
 void MainWindow::drawBuffer()
@@ -32,7 +35,7 @@ void MainWindow::loadFile(const QString &filename)
         // TODO: throw error
     }
 
-    if (this->buffer.format() != QImage::Format_RGB32)
+    if (this->buffer.format() != QImage::Format_RGB888)
     {
         this->buffer = this->buffer.convertToFormat(QImage::Format_RGB32);
     }
@@ -76,18 +79,11 @@ void MainWindow::save()
     }
 }
 
-void MainWindow::sortH()
+void MainWindow::sort()
 {
-    auto compareFunction = (Pixelsort::CompareFunction)this->ui->pixelsortCompareFunction->currentIndex();
-    Pixelsort p(Pixelsort::DirectionHorizontal, compareFunction);
-    p.run(this->buffer);
-    this->drawBuffer();
-}
-
-void MainWindow::sortV()
-{
-    auto compareFunction = (Pixelsort::CompareFunction)this->ui->pixelsortCompareFunction->currentIndex();
-    Pixelsort p(Pixelsort::DirectionVertical, compareFunction);
+    auto compareFunction = (Pixelsort::CompareFunction)this->ui->compareFunctionCombo->currentIndex();
+    auto direction = (Pixelsort::Direction)this->ui->directionCombo->currentIndex();
+    Pixelsort p(direction, compareFunction, false);
     p.run(this->buffer);
     this->drawBuffer();
 }
