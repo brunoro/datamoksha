@@ -3,7 +3,6 @@
 
 #include <QImage>
 #include <QString>
-#include <cv.hpp>
 #include <cstdlib>
 #include "operation.h"
 
@@ -38,25 +37,21 @@ public:
     static QString compareFunctionLabel(CompareFunction compareFunction);
     static QStringList compareFunctionLabels();
 
-    Pixelsort(Direction direction, CompareFunction compareFunction, bool useEdges);
+    Pixelsort(Direction direction, CompareFunction compareFunction, QImage *edges);
     void run(QImage &img);
-
-    QImage CvMatToQImage(cv::Mat const& src);
-    cv::Mat QImageToCvMat(QImage const& src);
 
 private:
     Direction direction;
     CompareFunction compareFunction;
-    bool useEdges;
+    QImage *edges;
 
     int (*getCompareFunctionPointer())(const void *a, const void *b);
 
-    void sortColumn(QImage &img, int x; int start, int length);
-    void sortRow(QImage &img, int y; int start, int length);
+    void sortColumn(QImage &img, int x, int start, int length);
+    void sortRow(QImage &img, int y, int start, int length);
 
     void sortHorizontal(QImage &img);
     void sortVertical(QImage &img);
-
 };
 
 #endif // PIXELSORT_H

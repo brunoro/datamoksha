@@ -16,11 +16,13 @@ QT_CONFIG -= no-pkg-config
 SOURCES += main.cpp\
         mainwindow.cpp \
     pixelsort.cpp \
-    operation.cpp
+    operation.cpp \
+    cvutil.cpp
 
 HEADERS  += mainwindow.h \
     pixelsort.h \
-    operation.h
+    operation.h \
+    cvutil.h
 
 FORMS    += mainwindow.ui
 

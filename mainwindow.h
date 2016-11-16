@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets>
+#include "cvutil.h"
 #include "pixelsort.h"
 
 namespace Ui {
@@ -18,17 +19,21 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QImage edges;
     QImage buffer;
 
     void loadFile(const QString &filename);
     void saveFile(const QString &filename);
     void drawBuffer();
+    void drawEdges();
 
 private slots:
     void find();
     void load();
     void save();
     void sort();
+    void detectEdges();
+    void detectAndDrawEdges();
 };
 
 #endif // MAINWINDOW_H

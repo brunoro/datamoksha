@@ -72,6 +72,13 @@
        <widget class="QComboBox" name="directionCombo"/>
       </item>
       <item>
+       <widget class="QCheckBox" name="detectEdges">
+        <property name="text">
+         <string>Detect edges</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="sortButton">
         <property name="text">
          <string>Sort</string>
@@ -79,6 +86,100 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QWidget" name="cannyOptions" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="cannyOptionsHBox">
+         <item>
+          <widget class="QLabel" name="cannyBlurLabel">
+           <property name="text">
+            <string>Blur radius:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="cannyBlurSlider">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>49</number>
+           </property>
+           <property name="singleStep">
+            <number>2</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+           </property>
+           <property name="tickInterval">
+            <number>2</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="cannyThreshLabel">
+           <property name="text">
+            <string>Min. threshold:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="cannyThreshSlider">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="sliderPosition">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="cannyRatioLabel">
+           <property name="text">
+            <string>Ratio:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="cannyRatioSlider">
+           <property name="maximum">
+            <number>20</number>
+           </property>
+           <property name="sliderPosition">
+            <number>3</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="invertedAppearance">
+            <bool>false</bool>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+           </property>
+           <property name="tickInterval">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </item>
     <item>
      <widget class="QLabel" name="imageView">

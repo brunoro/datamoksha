@@ -15,32 +15,59 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->directionCombo->addItems(Pixelsort::directionLabels());
     ui->directionCombo->setCurrentIndex(Pixelsort::DirectionHorizontal);
 
-    // connections
+    // button connections
     connect(ui->findButton, &QPushButton::clicked, this, &MainWindow::find);
     connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::load);
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::save);
     connect(ui->sortButton, &QPushButton::clicked, this, &MainWindow::sort);
+
+    // set canny toolbar hidden if detect edges unchecked
+    ui->cannyOptions->setVisible(false);
+    connect(ui->detectEdges, &QCheckBox::stateChanged, ui->cannyOptions, &QWidget::setVisible);
+
+    // make edges be drawn if canny sliders being pressed
+    connect(ui->cannyBlurSlider, &QSlider::sliderPressed, this, &MainWindow::drawEdges);
+    connect(ui->cannyBlurSlider, &QSlider::sliderReleased, this, &MainWindow::drawBuffer);
+    connect(ui->cannyBlurSlider, &QSlider::valueChanged, this, &MainWindow::detectAndDrawEdges);
+    connect(ui->cannyThreshSlider, &QSlider::sliderPressed, this, &MainWindow::drawEdges);
+    connect(ui->cannyThreshSlider, &QSlider::sliderReleased, this, &MainWindow::drawBuffer);
+    connect(ui->cannyThreshSlider, &QSlider::valueChanged, this, &MainWindow::detectAndDrawEdges);
+    connect(ui->cannyRatioSlider, &QSlider::sliderPressed, this, &MainWindow::drawEdges);
+    connect(ui->cannyRatioSlider, &QSlider::sliderReleased, this, &MainWindow::drawBuffer);
+    connect(ui->cannyRatioSlider, &QSlider::valueChanged, this, &MainWindow::detectAndDrawEdges);
+}
+
+
+MainWindow::~MainWindow()
+{
+    delete ui;
 }
 
 void MainWindow::drawBuffer()
 {
-    this->ui->imageView->setPixmap(QPixmap::fromImage(this->buffer));
+    ui->imageView->setPixmap(QPixmap::fromImage(buffer));
+}
+
+void MainWindow::drawEdges()
+{
+    ui->imageView->setPixmap(QPixmap::fromImage(edges));
 }
 
 void MainWindow::loadFile(const QString &filename)
 {
-    this->buffer = QImage(filename);
-    if (this->buffer.isNull())
+    buffer = QImage(filename);
+    if (buffer.isNull())
     {
         // TODO: throw error
     }
 
     if (this->buffer.format() != QImage::Format_RGB888)
     {
-        this->buffer = this->buffer.convertToFormat(QImage::Format_RGB32);
+        buffer = buffer.convertToFormat(QImage::Format_RGB32);
     }
 
-    this->drawBuffer();
+    drawBuffer();
+    detectEdges();
 }
 
 void MainWindow::saveFile(const QString &filename)
@@ -63,7 +90,7 @@ void MainWindow::find()
 
 void MainWindow::load()
 {
-    QString filename = this->ui->filePath->text();
+    QString filename = ui->filePath->text();
     if (!filename.isEmpty())
     {
         loadFile(filename);
@@ -81,14 +108,26 @@ void MainWindow::save()
 
 void MainWindow::sort()
 {
-    auto compareFunction = (Pixelsort::CompareFunction)this->ui->compareFunctionCombo->currentIndex();
-    auto direction = (Pixelsort::Direction)this->ui->directionCombo->currentIndex();
-    Pixelsort p(direction, compareFunction, false);
-    p.run(this->buffer);
-    this->drawBuffer();
+    auto compareFunction = (Pixelsort::CompareFunction)ui->compareFunctionCombo->currentIndex();
+    auto direction = (Pixelsort::Direction)ui->directionCombo->currentIndex();
+    Pixelsort p(direction, compareFunction, ui->detectEdges->checkState() ? &edges : NULL);
+    p.run(buffer);
+    drawBuffer();
 }
 
-MainWindow::~MainWindow()
+void MainWindow::detectEdges()
 {
-    delete ui;
+    if (!buffer.isNull())
+    {
+        int blurRadius = ui->cannyBlurSlider->value();
+        int lowThreshold = ui->cannyThreshSlider->value();
+        int ratio = ui ->cannyRatioSlider->value();
+        edges = CvUtil::findEdges(buffer, blurRadius, lowThreshold, ratio);
+    }
+}
+
+void MainWindow::detectAndDrawEdges()
+{
+    detectEdges();
+    drawEdges();
 }
