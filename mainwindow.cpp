@@ -63,7 +63,7 @@ void MainWindow::loadFile(const QString &filename)
 
     if (this->buffer.format() != QImage::Format_RGB888)
     {
-        buffer = buffer.convertToFormat(QImage::Format_RGB32);
+        buffer = buffer.convertToFormat(QImage::Format_RGB888);
     }
 
     drawBuffer();
