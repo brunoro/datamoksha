@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets>
+#include <QScreen>
 #include "cvutil.h"
 #include "pixelsort.h"
 
@@ -24,14 +25,15 @@ private:
 
     void loadFile(const QString &filename);
     void saveFile(const QString &filename);
-    void drawBuffer();
-    void drawEdges();
+    void showImage(QImage &img);
 
 private slots:
     void find();
     void load();
     void save();
     void sort();
+    void showBuffer();
+    void showEdges();
     void detectEdges();
     void detectAndDrawEdges();
 };
