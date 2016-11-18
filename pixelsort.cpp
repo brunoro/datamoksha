@@ -1,10 +1,13 @@
 #include "pixelsort.h"
 
-Pixelsort::Pixelsort(Direction direction, CompareFunction compareFunction, QImage *edges)
+#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+
+Pixelsort::Pixelsort(Direction direction, CompareFunction compareFunction, QImage *edges, bool misalignPointers)
 {
     this->direction = direction;
     this->compareFunction = compareFunction;
     this->edges = edges;
+    this->misalignPointers = misalignPointers;
 }
 
 int compare_red(const void *a, const void *b) { return QColor::fromRgb(*(QRgb*)a).red() - QColor::fromRgb(*(QRgb*)b).red(); }
@@ -82,65 +85,115 @@ QStringList Pixelsort::directionLabels()
 
 void Pixelsort::sortRow(QImage &img, int y, int start, int length)
 {
-    int numBytes = img.depth() / 8;
-
-    qsort(img.scanLine(y) + start * numBytes, length, numBytes, getCompareFunctionPointer());
+    int bytesPerPixel= img.depth() / 8;
+    qsort(img.scanLine(y) + start * bytesPerPixel, length, bytesPerPixel, getCompareFunctionPointer());
 }
 
 void Pixelsort::sortColumn(QImage &img, int x, int start, int length)
 {
-    int numBytes = img.depth() / 8;
+    int bytesPerPixel = img.depth() / 8;
 
-    QRgb *column = (QRgb*)malloc(sizeof(QRgb) * length);
+    QRgb *column = (QRgb *)malloc(sizeof(QRgb) * length);
     for (int i = 0; i < length; i++) { column[i] = img.pixel(x, start + i); }
 
-    qsort(column, length, numBytes, getCompareFunctionPointer());
+    qsort(column, length, bytesPerPixel, getCompareFunctionPointer());
 
     for (int i = 0; i < length; i++) { img.setPixel(x, start + i, column[i]); }
 
     free(column);
 }
 
+void Pixelsort::misalignedSortColumn(QImage &img, int x, int start, int length)
+{
+    int bytesPerPixel = img.depth() / 8;
+
+    char *column = (char*)malloc(bytesPerPixel * length);
+    for (int i = 0; i < length; i++) { column[i * bytesPerPixel] = img.pixel(x, start + i); }
+
+    qsort(column, length, bytesPerPixel, getCompareFunctionPointer());
+
+    for (int i = 0; i < length; i++) { img.setPixel(x, start + i, column[i * bytesPerPixel]); }
+
+    free(column);
+}
+
+void Pixelsort::misalignedSortRow(QImage &img, int y, int start, int length)
+{
+    int bytesPerPixel = img.depth() / 8;
+
+    char *row = (char*)malloc(bytesPerPixel * length);
+    for (int i = 0; i < length; i++) { row[i * bytesPerPixel] = img.pixel(start + i, y); }
+
+    qsort(row, length, bytesPerPixel, getCompareFunctionPointer());
+
+    for (int i = 0; i < length; i++) { img.setPixel(start + i, y, row[i * bytesPerPixel]); }
+
+    free(row);
+}
+
 void Pixelsort::sortHorizontal(QImage &img)
 {
+    auto sortRowImpl = misalignPointers ? &Pixelsort::misalignedSortRow : &Pixelsort::sortRow;
     for (int i = 0; i < img.height(); i++)
     {
         if (edges != NULL)
         {
             int start = 0;
-            while (start + 1 < img.width())
+            int j = start + 1;
+            for (; j < img.width(); j++)
             {
-                int j = start + 1;
-                for (; j < img.width(); j++)
+                if (edges->pixel(j, i) == qRgb(255, 255, 255))
                 {
-                    if (edges->pixel(j, i) == qRgb(255, 255, 255))
-                    {
-                        sortRow(img, i, start, j - start);
-                        start = j + 1;
-                        break;
-                    }
+                    CALL_MEMBER_FN(*this, sortRowImpl)(img, i, start, j - start);
+                    start = j + 1;
                 }
-                if (j == img.width())
-                    break;
             }
+            CALL_MEMBER_FN(*this, sortRowImpl)(img, i, start, j - start);
         }
         else
         {
-            sortRow(img, i, 0, img.width());
+            CALL_MEMBER_FN(*this, sortRowImpl)(img, i, 0, img.width());
         }
     }
 }
 
 void Pixelsort::sortVertical(QImage &img)
 {
-    int numLines = img.width();
-    int start = 0;
-    int length = img.height();
+    auto sortColumnImpl = misalignPointers ? &Pixelsort::misalignedSortColumn : &Pixelsort::sortColumn;
 
-    for (int i = 0; i < numLines; i++)
+    // convert image to 32bits, as sortColumn uses qsort to sort in memory
+    img = img.convertToFormat(QImage::Format_RGB32);
+    for (int i = 0; i < img.width(); i++)
     {
-        sortColumn(img, i, start, length);
+        if (edges != NULL)
+        {
+            int start = 0;
+            while (start + 1 < img.height())
+            {
+                int j = start + 1;
+                for (; j < img.height(); j++)
+                {
+                    if (edges->pixel(i, j) == qRgb(255, 255, 255))
+                    {
+                        CALL_MEMBER_FN(*this, sortColumnImpl)(img, i, start, j - start);
+                        start = j + 1;
+                        break;
+                    }
+                }
+                if (j == img.height())
+                {
+                    CALL_MEMBER_FN(*this, sortColumnImpl)(img, i, start, j - start);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            CALL_MEMBER_FN(*this, sortColumnImpl)(img, i, 0, img.height());
+        }
     }
+    // convert back to 24bits
+    img = img.convertToFormat(QImage::Format_RGB888);
 }
 
 void Pixelsort::run(QImage &img)

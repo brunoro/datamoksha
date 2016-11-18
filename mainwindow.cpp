@@ -45,6 +45,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::showImage(QImage &img)
 {
+    // don't resize window when displaying an image
     int w = ui->imageView->width();
     int h = ui->imageView->height();
     ui->imageView->setPixmap(QPixmap::fromImage(img).scaled(w, h, Qt::KeepAspectRatio));
@@ -117,7 +118,9 @@ void MainWindow::sort()
 {
     auto compareFunction = (Pixelsort::CompareFunction)ui->compareFunctionCombo->currentIndex();
     auto direction = (Pixelsort::Direction)ui->directionCombo->currentIndex();
-    Pixelsort p(direction, compareFunction, ui->detectEdges->checkState() ? &edges : NULL);
+    auto edgesMatrix = ui->detectEdges->checkState() ? &edges : NULL;
+    auto misalignPointers = ui->misalignPointers->checkState();
+    Pixelsort p(direction, compareFunction, edgesMatrix, misalignPointers);
     p.run(buffer);
     showBuffer();
 }

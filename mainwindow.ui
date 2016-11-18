@@ -72,6 +72,13 @@
        <widget class="QComboBox" name="directionCombo"/>
       </item>
       <item>
+       <widget class="QCheckBox" name="misalignPointers">
+        <property name="text">
+         <string>Misalign pointers</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="detectEdges">
         <property name="text">
          <string>Detect edges</string>

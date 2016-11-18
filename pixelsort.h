@@ -37,18 +37,24 @@ public:
     static QString compareFunctionLabel(CompareFunction compareFunction);
     static QStringList compareFunctionLabels();
 
-    Pixelsort(Direction direction, CompareFunction compareFunction, QImage *edges);
+    Pixelsort(Direction direction, CompareFunction compareFunction, QImage *edges, bool misalignPointers);
     void run(QImage &img);
 
 private:
+    typedef void (Pixelsort::*LineSorter)(QImage &, int, int, int);
+
     Direction direction;
     CompareFunction compareFunction;
     QImage *edges;
+    bool misalignPointers;
 
     int (*getCompareFunctionPointer())(const void *a, const void *b);
 
     void sortColumn(QImage &img, int x, int start, int length);
     void sortRow(QImage &img, int y, int start, int length);
+
+    void misalignedSortColumn(QImage &img, int x, int start, int length);
+    void misalignedSortRow(QImage &img, int y, int start, int length);
 
     void sortHorizontal(QImage &img);
     void sortVertical(QImage &img);
