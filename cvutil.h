@@ -2,7 +2,7 @@
 #define CVUTIL_H
 
 #include <QImage>
-#include <cv.hpp>
+#include <opencv/cv.hpp>
 
 namespace CvUtil {
     QImage CvMatToQImage(cv::Mat const& src);

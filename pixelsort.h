@@ -1,6 +1,7 @@
 #ifndef PIXELSORT_H
 #define PIXELSORT_H
 
+#include <qcolor.h>
 #include <QImage>
 #include <QString>
 #include <cstdlib>

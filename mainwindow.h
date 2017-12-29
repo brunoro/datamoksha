@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtWidgets>
 #include <QScreen>
+#include <QtWidgets>
 #include "cvutil.h"
 #include "pixelsort.h"
 

@@ -4,29 +4,29 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       += core gui widgets
 
 TARGET = datamoksha
 TEMPLATE = app
 
+CONFIG += c++11
 QT_CONFIG -= no-pkg-config
 
-SOURCES += main.cpp\
+SOURCES = main.cpp\
         mainwindow.cpp \
-    pixelsort.cpp \
-    operation.cpp \
-    cvutil.cpp
+        pixelsort.cpp \
+        operation.cpp \
+        cvutil.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS = mainwindow.h \
     pixelsort.h \
     operation.h \
     cvutil.h
 
-FORMS    += mainwindow.ui
+FORMS = mainwindow.ui
 
-unix {
+linux {
+   PKG_CONFIG_PATH += /usr/lib/x86_64-linux-gnu/pkgconfig/
    CONFIG += link_pkgconfig
    PKGCONFIG += opencv
 }
